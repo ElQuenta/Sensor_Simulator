@@ -1,23 +1,25 @@
-from flask import Flask, request
-import requests
-import logging
+from flask import Flask
+import proxy  # nuestro módulo proxy
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
 
-# URL del servicio de ingestión
-INGESTION_URL = "http://localhost:5001/ingest"
+# Rutas de ingestión y datos crudos
+@app.route('/api/ingest', methods=['POST'])
+def ingest():
+    return proxy.forward_post('/ingest')
 
-@app.route("/api/data", methods=["POST"])
-def gateway():
-    """
-    Endpoint principal que recibe datos de sensores y los reenvía al servicio de ingestión.
-    """
-    data = request.get_json()
-    logging.info(f"Gateway recibió: {data}")
-    # Reenvía al servicio de ingestión
-    resp = requests.post(INGESTION_URL, json=data)
-    return ("", resp.status_code)
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    return proxy.forward_get('/data', cache_key='raw_data')
 
-if __name__ == "__main__":
+# Rutas de análisis
+@app.route('/api/analysis/summary', methods=['GET'])
+def summary():
+    return proxy.forward_get('/analysis/summary', cache_key='summary')
+
+@app.route('/api/analysis/correlation', methods=['GET'])
+def correlation():
+    return proxy.forward_get('/analysis/correlation', cache_key='correlation')
+
+if __name__ == '__main__':
     app.run(port=5000)

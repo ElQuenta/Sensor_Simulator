@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Profesional</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <h1>Dashboard Profesional de Sensores</h1>
+  <button id="refresh-btn">Actualizar Datos</button>
+  <select id="view-select">
+    <option value="timeseries">Serie de Tiempo</option>
+    <option value="histogram">Histograma Temperatura</option>
+    <option value="correlation">Correlación Temp-Hum</option>
+    <option value="summary">Resumen Estadístico</option>
+  </select>
+  <div id="chart"></div>
+  <script>
+    let dashboardData = null;
+
+    async function fetchDashboard() {
+      const res = await fetch('/api/dashboard/data');
+      dashboardData = await res.json();
+    }
+
+    function renderTimeSeries() {
+      const raw = dashboardData.raw;
+      const x = raw.map(d=>d.sent_timestamp);
+      const yTemp = raw.map(d=>d.temperature);
+      const yHum = raw.map(d=>d.humidity);
+      Plotly.newPlot('chart', [
+        {x, y: yTemp, name:'Temperatura', mode:'lines+markers'},
+        {x, y: yHum, name:'Humedad', mode:'lines+markers'}
+      ]);
+    }
+
+    function renderHistogram() {
+      const temps = dashboardData.raw.map(d=>d.temperature);
+      Plotly.newPlot('chart', [{x:temps, type:'histogram', name:'Temperatura'}]);
+    }
+
+    function renderCorrelation() {
+      const raw = dashboardData.raw;
+      const temps = raw.map(d=>d.temperature);
+      const hums = raw.map(d=>d.humidity);
+      Plotly.newPlot('chart', [{x:temps, y:hums, mode:'markers', type:'scatter', name:'Temp vs Hum'}],
+        {title:'Correlación Temperatura-Humedad'});
+    }
+
+    function renderSummary() {
+      const summary = dashboardData.summary;
+      document.getElementById('chart').innerHTML = `<pre>${JSON.stringify(summary, null,2)}</pre>`;
+    }
+
+    document.getElementById('refresh-btn').onclick = async () => {
+      await fetchDashboard();
+      render();
+    };
+
+    document.getElementById('view-select').onchange = () => render();
+
+    function render() {
+      const view = document.getElementById('view-select').value;
+      if (!dashboardData) return;
+      if (view==='timeseries') renderTimeSeries();
+      else if (view==='histogram') renderHistogram();
+      else if (view==='correlation') renderCorrelation();
+      else if (view==='summary') renderSummary();
+    }
+
+    // carga inicial sin datos
+    document.getElementById('chart').innerHTML = '<p>Presiona "Actualizar Datos" para cargar el dashboard.</p>';
+  </script>
+</body>
+</html>
