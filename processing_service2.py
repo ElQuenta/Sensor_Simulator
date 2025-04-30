@@ -2,8 +2,10 @@ from flask import Flask, jsonify
 import requests
 
 app = Flask(__name__)
-
-INGESTION_URL = "http://localhost:5000/api/data"  
+HOST = "localhost"
+HOST_PORT = 5000
+INGESTION_URL = f"http://{HOST}:{HOST_PORT}/api/data"  
+PORT = 5002 
 
 @app.route('/analysis/summary', methods=['GET'])
 def summary():
@@ -48,4 +50,4 @@ def correlation():
     return jsonify({'temperature_humidity_correlation': corr_val})
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5002)
+    app.run(host="0.0.0.0", port=PORT)

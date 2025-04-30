@@ -2,7 +2,9 @@ from flask import Flask, render_template, jsonify
 import requests
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-GATEWAY_URL = "http://localhost:5000/api"
+HOST = "localhost"
+HOST_PORT = 5000
+GATEWAY_URL = f"http://{HOST}:{HOST_PORT}/api"
 
 @app.route('/')
 def index():

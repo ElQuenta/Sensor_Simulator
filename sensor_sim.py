@@ -13,7 +13,9 @@ def generate_sensor_data(sensor_id):
 
 
 def main():
-    url = "http://localhost:5000/api/ingest"
+    host = "localhost"
+    host_port = 5000
+    url = f"http://{host}:{host_port}/api/ingest"
     sensor_ids = ["sensor_1", "sensor_2", "sensor_3"]
 
     while True:
