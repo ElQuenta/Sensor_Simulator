@@ -26,4 +26,4 @@ def correlation():
     return jsonify({'temperature_humidity_correlation': corr_val})
 
 if __name__ == '__main__':
-    app.run(port=5002)
+    app.run(host="0.0.0.0", port=5002)

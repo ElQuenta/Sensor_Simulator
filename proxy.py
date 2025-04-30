@@ -29,7 +29,9 @@ def forward_get(path, cache_key=None):
     if cache_key:
         data = get_cache(cache_key)
         if data is not None:
+            print(f"Cache hit for {cache_key}")
             return jsonify(data)
+        print(f"Cache miss for {cache_key}")
     resp = requests.get(f"{INGEST_URL}{path}" if '/analysis' not in path else f"{PROCESS_URL}{path}")
     data = resp.json()
     if cache_key:

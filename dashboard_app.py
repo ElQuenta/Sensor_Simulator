@@ -2,7 +2,7 @@ from flask import Flask, render_template, jsonify
 import requests
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
-GATEWAY_URL = "http://localhost:5000"
+GATEWAY_URL = "http://localhost:5000/api"
 
 @app.route('/')
 def index():
@@ -10,10 +10,10 @@ def index():
 
 @app.route('/api/dashboard/data', methods=['GET'])
 def dashboard_data():
-    raw = requests.get(f"{GATEWAY_URL}/api/data").json()
-    summary = requests.get(f"{GATEWAY_URL}/api/analysis/summary").json()
-    corr = requests.get(f"{GATEWAY_URL}/api/analysis/correlation").json()
+    raw = requests.get(f"{GATEWAY_URL}/data").json()
+    summary = requests.get(f"{GATEWAY_URL}/analysis/summary").json()
+    corr = requests.get(f"{GATEWAY_URL}/analysis/correlation").json()
     return jsonify({'raw': raw, 'summary': summary, 'correlation': corr})
 
 if __name__ == '__main__':
-    app.run(port=5003)
+    app.run(host="0.0.0.0", port=5003)

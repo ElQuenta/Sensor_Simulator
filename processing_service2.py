@@ -1,33 +1,16 @@
 from flask import Flask, jsonify
 import requests
-#import sqlite3  # Conexión SQLite comentada
-#import pandas as pd
 
 app = Flask(__name__)
-#DB_PATH = 'sensor_data.db'  # Ruta base de datos comentada
 
-INGESTION_URL = "http://localhost:5001/data"  # Servicio de ingestión
+INGESTION_URL = "http://localhost:5000/api/data"  
 
 @app.route('/analysis/summary', methods=['GET'])
 def summary():
-    """
-    Obtiene datos crudos vía HTTP GET al servicio de ingestión y calcula estadísticas.
-    """
-    # Conexión SQLite previa (comentada):
-    # conn = sqlite3.connect(DB_PATH)
-    # df = pd.read_sql_query("SELECT temperature, humidity FROM readings", conn)
-    # conn.close()
-
-    # Solicitud HTTP al servicio de ingestión
     resp = requests.get(INGESTION_URL)
     data = resp.json()
     if not data:
         return jsonify({'message': 'No hay datos'}), 204
-
-    # Cálculo de estadísticas con pandas
-    # df = pd.DataFrame(data)
-    # stats = df.agg(['mean','min','max']).to_dict()
-    # para no depender de pandas:
     temps = [d['temperature'] for d in data]
     hums = [d['humidity'] for d in data]
     stats = {
@@ -46,13 +29,6 @@ def summary():
 
 @app.route('/analysis/correlation', methods=['GET'])
 def correlation():
-    """
-    Obtiene datos crudos y calcula correlación entre temperatura y humedad.
-    """
-    # conn = sqlite3.connect(DB_PATH)
-    # df = pd.read_sql_query("SELECT temperature, humidity FROM readings", conn)
-    # conn.close()
-
     resp = requests.get(INGESTION_URL)
     data = resp.json()
     if not data:
@@ -72,4 +48,4 @@ def correlation():
     return jsonify({'temperature_humidity_correlation': corr_val})
 
 if __name__ == '__main__':
-    app.run(port=5002)
+    app.run(host="0.0.0.0", port=5002)
